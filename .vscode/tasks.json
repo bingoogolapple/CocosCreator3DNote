@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CocosCreator compile",
+      "command": "curl",
+      "args": ["http://localhost:7456/asset-db/refresh"],
+      "type": "shell",
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "autorefresh",
+      "type": "shell",
+      "command": "nodemon",
+      "args": [
+        "--watch",
+        "assets/scripts",
+        "--ext",
+        "js ts",
+        "--exec",
+        "curl http://localhost:7456/asset-db/refresh"
+      ],
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

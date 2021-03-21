@@ -1,0 +1,28 @@
+{
+  "version": "1.4.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "CocosCreator Launch Chrome against localhost",
+      "url": "http://localhost:7456",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "autorefresh",
+      "request": "launch",
+      "type": "node",
+      "runtimeExecutable": "nodemon",
+      "args": [
+        "--watch",
+        "assets/scripts",
+        "--ext",
+        "js ts",
+        "--exec",
+        "curl http://localhost:7456/asset-db/refresh"
+      ],
+      "console": "integratedTerminal",
+      "protocol": "inspector"
+    }
+  ]
+}
