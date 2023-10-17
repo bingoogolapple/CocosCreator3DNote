@@ -73,16 +73,16 @@
     "includeModules": [
       "base",
       "gfx-webgl",
-      "profiler",
-      "audio",
-      "tween",
       "3d",
+      "2d",
+      "ui",
       "particle",
       "physics-ammo",
       "primitive",
-      "terrain",
-      "2d",
-      "ui"
+      "profiler",
+      "audio",
+      "tween",
+      "terrain"
     ],
     "noDeprecatedFeatures": {
       "value": false,
