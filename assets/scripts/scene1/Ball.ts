@@ -30,6 +30,7 @@ export default class Ball extends Component {
       let linearVelocity = v3(0, 0, 0);
       rigidBody?.getLinearVelocity(linearVelocity);
       this.initVelocityY = linearVelocity.y;
+      // 此时已经是向上反弹时的加速度了，是个正数
       console.log("y 轴的初始加速度", this.initVelocityY);
     } else {
       // 非初次碰撞，恢复 y 轴加速度
@@ -38,7 +39,7 @@ export default class Ball extends Component {
   }
 
   /**
-   * 加速
+   * 向下加速，是个负数
    */
   boost() {
     let rigidBody = this.node.getComponent(RigidBody);

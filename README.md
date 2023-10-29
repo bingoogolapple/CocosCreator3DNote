@@ -8,27 +8,41 @@
 npm i -g nodemon
 ```
 
-- 监听到 assets/scripts 目录中的 js 和 ts 文件变化后自动重新编译并刷新浏览器
+- 监听到 assets/scripts 目录中的 ts 文件变化后自动重新编译并刷新浏览器
 
 ```shell
-nodemon --watch assets/scripts --ext "js ts" --exec "curl http://localhost:7456/asset-db/refresh"
+nodemon --watch assets/scripts --ext "ts" --exec "curl http://localhost:7456/asset-db/refresh"
 ```
 
-- 也可以配置到 tasks.json 中。command + shift + B，然后选择 autorefresh
+- 也可以配置到 tasks.json 中。command + shift + B，然后选择 Cocos Creator auto compile
 
 ```json
 {
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "autorefresh",
+      "label": "Cocos Creator compile",
+      "command": "curl",
+      "args": ["http://localhost:7456/asset-db/refresh"],
+      "type": "shell",
+      "isBackground": true,
+      "group": "build",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Cocos Creator auto compile",
       "type": "shell",
       "command": "nodemon",
       "args": [
         "--watch",
         "assets/scripts",
         "--ext",
-        "js ts",
+        "ts",
         "--exec",
         "curl http://localhost:7456/asset-db/refresh"
       ],
@@ -47,23 +61,20 @@ nodemon --watch assets/scripts --ext "js ts" --exec "curl http://localhost:7456/
 
 ```json
 {
-  "version": "1.4.0",
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
   "configurations": [
     {
-      "name": "Creator Debug: Launch Chrome",
+      "name": "Cocos Creator Launch Chrome against localhost",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:7456",
-      "sourceMaps": true,
-      "userDataDir": "${workspaceFolder}/.vscode/chrome",
-      "diagnosticLogging": false,
-      "pathMapping": {
-        "/preview-scripts/assets": "${workspaceFolder}/temp/quick-scripts/dst/assets",
-        "/": "${workspaceFolder}"
-      }
+      "webRoot": "${workspaceFolder}"
     },
     {
-      "name": "autorefresh",
+      "name": "Cocos Creator auto compile",
       "request": "launch",
       "type": "node",
       "runtimeExecutable": "nodemon",
@@ -71,7 +82,7 @@ nodemon --watch assets/scripts --ext "js ts" --exec "curl http://localhost:7456/
         "--watch",
         "assets/scripts",
         "--ext",
-        "js ts",
+        "ts",
         "--exec",
         "curl http://localhost:7456/asset-db/refresh"
       ],

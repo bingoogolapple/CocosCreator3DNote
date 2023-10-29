@@ -1,15 +1,18 @@
 {
-  "version": "1.4.0",
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
   "configurations": [
     {
+      "name": "Cocos Creator Launch Chrome against localhost",
       "type": "chrome",
       "request": "launch",
-      "name": "CocosCreator Launch Chrome against localhost",
       "url": "http://localhost:7456",
       "webRoot": "${workspaceFolder}"
     },
     {
-      "name": "autorefresh",
+      "name": "Cocos Creator auto compile",
       "request": "launch",
       "type": "node",
       "runtimeExecutable": "nodemon",
@@ -17,7 +20,7 @@
         "--watch",
         "assets/scripts",
         "--ext",
-        "js ts",
+        "ts",
         "--exec",
         "curl http://localhost:7456/asset-db/refresh"
       ],

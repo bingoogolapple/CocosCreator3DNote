@@ -1,6 +1,7 @@
 {
-  "name": "CocosCreatorNote3D",
-  "type": "3d",
-  "uuid": "c30b28da-749e-479b-bcb6-cecd8d7be9e3",
-  "version": "3.0.0"
+  "name": "CocosCreator3DNote",
+  "uuid": "3c0897d5-f85c-407b-8d11-dbde42352f77",
+  "creator": {
+    "version": "3.8.1"
+  }
 }

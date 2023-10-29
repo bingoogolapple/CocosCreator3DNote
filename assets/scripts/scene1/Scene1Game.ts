@@ -6,30 +6,18 @@ import {
   Prefab,
   v3,
   instantiate,
-  systemEvent,
-  sp,
+  input,
   director,
-  SystemEventType,
   Camera,
   EventKeyboard,
-  macro,
+  Input,
+  KeyCode,
+  PhysicsSystem,
 } from "cc";
 import Ball from "./Ball";
 import Block from "./Block";
 const { ccclass, property } = _decorator;
 
-/**
- * 1、新建一个空节点 Game 用来存放 3D 场景
- * 2、在 Game 节点下新建一个 3D 对象立方体 ball_block，使用缩放工具调整的扁一点，用来当做来当做跳板
- * 3、在 Game 节点下新建一个 3D 对象球体 ball，小球太大了，调整小球缩放为 0.5
- * 4、给跳板赋予物理属性
- *   4.1、添加刚体组件 RigidBody，刚体类型 type 设置为静态刚体 STATIC（可用于描述静止的建筑物，若物体需要持续运动，应设置为 KINEMATIC 类型）
- *   4.2、添加盒碰撞器组件 BoxCollider
- * 5、给小球赋予物理属性
- *   5.1、添加刚体组件 RigidBody，刚体类型 type 设置为动力学刚体 DYNAMIC（能够受到力的作用，请通过物理规律来运动物体，并且请保证质量大于 0），刚体的质量 mass 设置为 1
- *   5.2、添加球碰撞器组件 SphereCollider
- * 6、此时小球没有回弹效果，在「项目 -> 项目设置 -> 物理 」中将弹性系数设置为 1，摩擦系数设置为 0，来让小球弹回原始下落位置
- */
 /**
  * 编辑器的基本操作与快捷方式：
  * a、层级管理器中双击节点：让节点来到视野中央，方便编辑节点
@@ -54,9 +42,27 @@ const { ccclass, property } = _decorator;
  * b、也可以在编辑器中调好一个角度，然后再层级管理器中选中 Camera 并下 ctrl + shift + f，摄像机就会自动对到编辑器的可视视角
  * c、设计好如何在世界里摆放场景，摆好以后如何摆放摄像机；一般从世界坐标的原点（0，0，0）开始摆放
  */
+
+/**
+ * 1、新建一个空节点 Game 用来存放 3D 场景
+ * 2、在 Game 节点下新建一个 3D 对象立方体 ball_block，使用缩放工具调整的扁一点，用来当做来当做跳板
+ * 3、在 Game 节点下新建一个 3D 对象球体 ball，小球太大了，调整小球缩放为 0.5
+ * 4、给跳板赋予物理属性
+ *   4.1、添加刚体组件 RigidBody，刚体类型 type 设置为静态刚体 STATIC（可用于描述静止的建筑物，若物体需要持续运动，应设置为 KINEMATIC 类型）
+ *   4.2、添加盒碰撞器组件 BoxCollider
+ * 5、给小球赋予物理属性
+ *   5.1、添加刚体组件 RigidBody，刚体类型 type 设置为动力学刚体 DYNAMIC（能够受到力的作用，请通过物理规律来运动物体，并且请保证质量大于 0），刚体的质量 mass 设置为 1
+ *   5.2、添加球碰撞器组件 SphereCollider
+ * 6、此时小球没有回弹效果
+ *   6.1、3.0.0 版本：在「项目 -> 项目设置 -> 物理 」中将弹性系数设置为 1，摩擦系数设置为 0，来让小球弹回原始下落位置
+ *   6.2、3.8.1 版本：在「项目 -> 项目设置 -> 物理 」中已经没有单独设置默认弹性系数和摩擦系数的地方了，而是通过默认材质来设置
+ *     6.2.1、但这个例子中不通过默认材质来修改，而是单独创建一个物理材质 pm_ball_and_block，将「物理摩擦、滚动物理摩擦、旋转物理摩擦」设置为 0，将「弹性系数」设置为 1
+ *     6.2.2、将上一步创建的物理材质赋值给「小球 ball 的 cc.SphereCollider、跳板 ball_block 的 cc.BoxCollider」的 Material
+ *     6.2.3、「有个大坑需要特别注意」在 3.8.1 版本中，添加球碰撞器组件 SphereCollider 时 Center 的默认值不是 0 0 0，会导致小球无法回弹，需要手动修改为 0 0 0
+ */
 @ccclass
 export class Scene1Game extends Component {
-  private static readonly BLOCK_COUNT: number = 6;
+  private static readonly BLOCK_COUNT: number = 9;
   @property(Label)
   private scoreLabel!: Label;
   @property(Node)
@@ -84,9 +90,9 @@ export class Scene1Game extends Component {
 
   onLoad() {
     // 监听手指结束触摸事件
-    systemEvent.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
+    input.on(Input.EventType.TOUCH_START, this.onTouchStart, this);
     // 监听当按下按键时触发的事件
-    systemEvent.on(SystemEventType.KEY_DOWN, this.onKeyDown, this);
+    input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
 
     // 设置小球初始位置
     this.ballNode.position = v3(0, 2, 0);
@@ -97,9 +103,9 @@ export class Scene1Game extends Component {
 
   onDestroy() {
     // 取消监听手指结束触摸事件
-    systemEvent.off(Node.EventType.TOUCH_END, this.onTouchStart, this);
+    input.off(Input.EventType.TOUCH_END, this.onTouchStart, this);
     // 取消监听当按下按键时触发的事件
-    systemEvent.off(SystemEventType.KEY_DOWN, this.onKeyDown, this);
+    input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
   }
 
   /**
@@ -119,7 +125,7 @@ export class Scene1Game extends Component {
 
   onKeyDown(event: EventKeyboard) {
     switch (event.keyCode) {
-      case macro.KEY.space:
+      case KeyCode.SPACE:
         // 监听到按下空格键时切换相机
         this.switchCamera();
         break;
@@ -167,7 +173,7 @@ export class Scene1Game extends Component {
     for (let blockNode of this.blockNodeArr) {
       let nowPos = blockNode.getPosition();
       let nextX = (nowPos.x += speed);
-      if (nextX < -3) {
+      if (nextX < -10) {
         // 跳板超出左侧指定位置时将其设置为最后一块跳板，从而实现循环展示
         blockNode
           .getComponent(Block)
