@@ -59,6 +59,14 @@ const { ccclass, property } = _decorator;
  *     6.2.2、将上一步创建的物理材质赋值给「小球 ball 的 cc.SphereCollider、跳板 ball_block 的 cc.BoxCollider」的 Material
  *     6.2.3、「有个大坑需要特别注意」在 3.8.1 版本中，添加球碰撞器组件 SphereCollider 时 Center 的默认值不是 0 0 0，会导致小球无法回弹，需要手动修改为 0 0 0
  */
+
+/**
+ * 1、3D 游戏内容 + 盖一层 UI 给用户操作，UI 与 3D 的内容是独立的
+ * 2、两个摄像机来负责绘制，3D 摄像机（投影类型 Projection 是透视投影 PERSPECTIVE）和 UI 摄像机（投影类型 Projection 是正交投影 ORTHO）
+ * 3、所有的 UI 是在世界的另一个地方来放 UI 物体，避免和 3D 场景叠加再一起。UI 也是 3D 世界里面的物体
+ * 4、引擎规定，所有的 UI 节点都要在 Canvas 下
+ * 5、UI 摄像机只会绘制 UI_3D、UI_2D，UI 节点的 Layer 必须设置为 UI_2D、UI_3D 才能被 UI 摄像机显示出来
+ */
 @ccclass
 export class Scene1Game extends Component {
   private static readonly BLOCK_COUNT: number = 9;
