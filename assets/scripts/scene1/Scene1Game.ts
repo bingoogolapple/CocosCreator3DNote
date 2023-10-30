@@ -12,6 +12,8 @@ import {
   EventKeyboard,
   Input,
   KeyCode,
+  view,
+  screen,
 } from "cc";
 import Ball from "./Ball";
 import Block from "./Block";
@@ -66,6 +68,21 @@ const { ccclass, property } = _decorator;
  * 3、所有的 UI 是在世界的另一个地方来放 UI 物体，避免和 3D 场景叠加再一起。UI 也是 3D 世界里面的物体
  * 4、引擎规定，所有的 UI 节点都要在 Canvas 下
  * 5、UI 摄像机只会绘制 UI_3D、UI_2D，UI 节点的 Layer 必须设置为 UI_2D、UI_3D 才能被 UI 摄像机显示出来
+ * 6、编辑的时候：Canvas 节点是一个蓝色的框，这个框的大小表示 UI 设计分辨率
+ *   6.1、在「项目->项目设置->项目数据」中设置
+ *   6.2、cocos creator 默认是 1280 x 720，高分辨率用 1920 x 1080，低分辨率用 960 x 640
+ *   6.3、开发期间基于这个蓝色的框来摆放 UI，摆出来的范围就是设计分辨率范围
+ * 7、运行的时候：Canvas 的真实大小就是屏幕大小，随着屏幕变化而变化
+ *   7.1、Canvas 组件时有个特殊的组件 cc.Widget，设置 Canvas 节点上下左右距离屏幕边缘都是 0 来实现 Canvas 节点和屏幕一样大
+ * 8、分辨率
+ *   8.1、屏幕像素分辨率：屏幕到底多少个像素分辨率，1920 x 1080 的屏幕
+ *   8.2、逻辑分辨率：对于 UI 设计者而言，摆位置时没有像素分辨率，只有一个基于逻辑分辨率。没办法同时满足两个维度，可以做一个修改，确保一个维度一样，一个维度不一样
+ *      8.2.1、设计分辨率：1920 x 1080，屏幕的像素：960 x 640
+ *      8.2.2、视频屏幕宽度（固定宽度）：保持宽度与设计分辨率一样，高度不一样。逻辑分辨率宽度就是 1920，比例就是 960 / 1920 = 0.5，逻辑高度就是 640 / 0.5 = 1280，此时 UI 适配就是把 1080 的内容排布到 1280 的范围内，1920 x 1280
+ *      8.2.3、视频屏幕高度（固定高度）：保持高度与设计分辨率一样，宽度不一样。逻辑分辨率高度就是 1080，比例就是 640 / 1080 = 0.59259，逻辑宽度就是 960 / 0.59259 = 1620，此时 UI 适配就是把 1920 的内容排布到 1620 的范围内，1620 x 1080
+ *   8.3、做 2D UI 的时候会做适配（3D 是没有适配的），就是在一个屏幕内，把 UI 都布局好，不同的分辨率，UI 节点都能布局好
+ *   8.4、通过 view.getVisibleSize() 获取逻辑分辨率，通过 view.getVisibleSizeInPixel() 获取像素分辨率
+ *   8.5、cc.UITransform 是 2D UI 特有的，描述 UI 的大小（是逻辑分辨率）和锚点（是比例）
  */
 @ccclass
 export class Scene1Game extends Component {
@@ -106,6 +123,25 @@ export class Scene1Game extends Component {
 
     // 初始化跳板
     this.initBlock();
+
+    console.log(
+      "visibleSize",
+      view.getVisibleSize(), // 返回视图窗口可见区域尺寸。逻辑分辨率
+      "visibleSizeInPixel",
+      view.getVisibleSizeInPixel(), // 返回视图窗口可见区域像素尺寸。像素分辨率，GameCanvas 的宽高
+      "windowSize",
+      screen.windowSize, // 获取和设置当前窗口的物理像素尺寸
+      "resolution",
+      screen.resolution // 获取当前游戏的分辨率
+    );
+    // 监听单次屏幕大小变更
+    screen.once(
+      "window-resize",
+      (...args) => {
+        console.log("window-resize", args);
+      },
+      this
+    );
   }
 
   onDestroy() {
